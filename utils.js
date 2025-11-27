@@ -21,7 +21,7 @@ export function generarToken(user) {
   const payload = {
     id: user.id,
   };
-  return jwt.sign(payload, secret, { expiresIn: "1m" });
+  return jwt.sign(payload, secret, { expiresIn: "1h" });
 } 
 
 export function validarToken(){
