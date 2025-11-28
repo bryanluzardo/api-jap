@@ -32,16 +32,19 @@ db.exec(`
   );
 `);
 
-// helpers DB
-const leerBase = async () => {
-  const users = await db.prepare("SELECT * FROM usuarios").all();
-  return users
-}
+
+// const leerBase = async () => {
+//   const users = await db.prepare("SELECT * FROM carrito").all();
+//   return users
+// }
 
 const mostrarUno = async (id) => {
   const user = await db.prepare("SELECT * FROM usuarios WHERE id = ?").get(id);
   return user
 }
+
+console.log(await mostrarUno('dc64fddc-d9e8-4cbb-95a1-e81e01c80658'))
+
 
 app.use(express.json());
 app.use(cors({
@@ -131,13 +134,13 @@ app.put('/usuarios/:id', jwtAuth, async (req, res) => {
   }
 });
 
-app.get('/usuarios/:id', jwtAuth, async (req, res) => {
+app.get('/usuarios/:id', async (req, res) => {
   const id = req.params.id;
   if (!id) {
     return res.status(400).json({ message: "no etá acá el id bro" });
   }
   try {
-    const user = await mostrarUno(id);
+    const user = await mostrarUno(String(id));
     return res.status(200).json(user);
   } catch (err) {
     return res.status(404).json({ message: "No encontrado" });
@@ -260,12 +263,12 @@ app.post("/sign-up", async (req, res) => {
 });
 
 // GET carrito -> /cart?id=USER_ID
-app.get('/cart', async (req, res) => {
+app.get('/cart', jwtAuth, async (req, res) => {
   const idUsuario = req.query.id;
   if (!idUsuario) return res.status(400).json({ status: 'error', message: 'Falta id en query' });
   try {
     const dbIds = await db.prepare('SELECT productos FROM carrito WHERE user_id = ?').get(idUsuario)
-    if (!dbIds || !dbIds.productos) return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' })
+    if (dbIds === undefined) return 
     const ids = String(dbIds.productos).split(',').filter(Boolean)
     return res.status(200).json({ status: 'ok', message: 'ok', products: ids })
   } catch (err) {
@@ -274,14 +277,36 @@ app.get('/cart', async (req, res) => {
   }
 })
 
-// PUT carrito -> /cart?ids=55,48,65&id=USER_ID
-app.put('/cart', async (req, res) => {
-  const ids = req.query.ids // string "55,48,65"
+// PUT carrito -> /cart?ids=55-qty-2,48-qty-1,65&id=USER_ID
+app.put('/cart', jwtAuth, async (req, res) => {
+  const idsRaw = req.query.ids || ''; 
   const idUsuario = req.query.id
-
-  if (!ids || !idUsuario) {
+  const ids = idsRaw.replace(/-qty-\d+/g, "");
+  const quantities = idsRaw.replace(/\d+-qty-/g, "");
+  if (!idUsuario) {
     return res.status(400).json({ status: 'error', message: 'Faltan parametros ids o id' });
   }
+  console.log('ids:', ids, ids.split(','));
+
+  if (!ids) {
+    await db.prepare(`UPDATE carrito SET productos = NULL WHERE user_id = ?`).run(idUsuario);
+  }
+
+  
+  for (const [i, id] of ids.split(',').entries()) {
+  const data = await fs.readFile(`jsons/products/${id}.json`, 'utf8');
+  const parseData = JSON.parse(data);
+
+  const newData = {
+    ...parseData,
+    quantity: parseInt(quantities.split(',')[i])
+  };
+
+  console.log(newData);
+  await fs.writeFile(`jsons/products/${id}.json`, JSON.stringify(newData));
+}
+ 
+ 
 
   try {
     let cart = await db.prepare(`SELECT * FROM carrito WHERE user_id = ?`).get(idUsuario);
@@ -301,6 +326,20 @@ app.put('/cart', async (req, res) => {
     console.error('Error en PUT /cart', err);
     return res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
   }
+})
+
+app.delete('/usuario/:id', jwtAuth, async (req, res) => {
+  const id = req.params.id;
+  if (!id) {
+    return res.status(400).json({ status: 'error', message: 'Falta id en params' });
+  }
+  try {
+    const result = await db.prepare('DELETE FROM usuarios WHERE id = ?').run(id);
+    return res.status(200).json({ status: 'ok', message: 'ok', changes: result.changes });
+  } catch (err) {
+    console.error('Error en DELETE /usuario/:id', err);
+    return res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
+  } 
 })
 
 app.listen(port, () => {

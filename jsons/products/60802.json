@@ -3,6 +3,7 @@
     "name": "Sofá",
     "description": "Cómodo sofá de tres cuerpos, con chaiselongue intercambiable. Ideal para las siestas",
     "cost": 24000,
+    "quantity": 1,
     "currency": "UYU",
     "soldCount": 12,
     "category": "Muebles",

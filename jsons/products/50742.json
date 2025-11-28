@@ -3,6 +3,7 @@
     "name": "Pelota de básquetbol",
     "description": "Balón de baloncesto profesional, para interiores, tamaño 5, 27.5 pulgadas. Oficial de la NBA",
     "cost": 2999,
+    "quantity": 1,
     "currency": "UYU",
     "soldCount": 11,
     "category": "Juguetes",

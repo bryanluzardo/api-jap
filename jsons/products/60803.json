@@ -3,6 +3,7 @@
     "name": "Armario",
     "description": "Diseño clásico con puertas con forma de panel. Espejo de cuerpo entero para ver cómo te queda la ropa",
     "cost": 8000,
+    "quantity": 1,
     "currency": "UYU",
     "soldCount": 24,
     "category": "Muebles",

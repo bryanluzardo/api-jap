@@ -3,6 +3,7 @@
     "name": "Bicicleta",
     "description": "¡La mejor BMX pequeña del mercado! Frenos traseros y cuadro duradero de acero Hi-Ten.",
     "cost": 10999,
+    "quantity": 1,
     "currency": "UYU",
     "soldCount": 8,
     "category": "Juguetes",

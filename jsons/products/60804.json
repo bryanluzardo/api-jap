@@ -3,6 +3,7 @@
     "name": "Mesa de centro",
     "description": "Añade más funciones a tu sala de estar, ya que te permite cambiar fácilmente de actividad.",
     "cost": 10000,
+    "quantity": 1,
     "currency": "UYU",
     "soldCount": 37,
     "category": "Muebles",

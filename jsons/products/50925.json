@@ -3,6 +3,7 @@
     "name": "Bugatti Chiron",
     "description": "El mejor hiperdeportivo de mundo. Producción limitada a 500 unidades.",
     "cost": 3500000,
+    "quantity": 1,
     "currency": "USD",
     "soldCount": 0,
     "category": "Autos",

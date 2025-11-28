@@ -3,6 +3,7 @@
     "name": "Computadora de escritorio",
     "description": "Computadora de escritorio. Potencia y rendimiento, para juegos o trabajo",
     "cost": 2599,
+    "quantity": 1,
     "currency": "USD",
     "soldCount": 11,
     "category": "Computadoras",

@@ -3,6 +3,7 @@
     "name": "Peugeot 208",
     "description": "El modelo de auto que se sigue renovando y manteniendo su prestigio en comodidad.",
     "cost": 15200,
+    "quantity": 1,
     "currency": "USD",
     "soldCount": 17,
     "category": "Autos",
