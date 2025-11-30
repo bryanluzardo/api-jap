@@ -250,15 +250,21 @@ app.post("/sign-up", async (req, res) => {
     }
     const hashed = await hashPass(user_password);
     const id = uuidv4();
+    const cartId = uuidv4();
     const insert = db.prepare(
       "INSERT INTO usuarios (id, user_name, mail, tel, user_password) VALUES (?, ?, ?, ?, ?)"
     );
+    const cartInsert = db.prepare(
+      "INSERT INTO carrito (id, user_id, productos) VALUES (?, ?, ?)"
+    )
     try {
       const result = insert.run(id, user_name, mail, tel, hashed);
+      const cartResult = cartInsert.run(cartId, id, "[]");
       return res.status(201).json({
         status: "ok",
         insertedId: id,
         changes: result.changes,
+        cartInsertedId: cartResult.lastInsertRowid,
         lastInsertRowid: result.lastInsertRowid,
       });
     } catch (err) {
@@ -309,21 +315,21 @@ app.put("/cart", jwtAuth, async (req, res) => {
       .status(400)
       .json({ status: "error", message: "Faltan parametros ids o id" });
   }
-  console.log("ids:", ids, ids.split(","));
-  if (!ids) {
+  
     await db
       .prepare(`UPDATE carrito SET productos = NULL WHERE user_id = ?`)
       .run(idUsuario);
-  }
-  for (const [i, id] of ids.split(",").entries()) {
+  
+  if(ids){
+    for (const [i, id] of ids.split(",").entries()) {
     const data = await fs.readFile(`jsons/products/${id}.json`, "utf8");
     const parseData = JSON.parse(data);
     const newData = {
       ...parseData,
       quantity: parseInt(quantities.split(",")[i]),
     };
-    console.log(newData);
     await fs.writeFile(`jsons/products/${id}.json`, JSON.stringify(newData));
+  }
   }
   try {
     let cart = await db
@@ -337,12 +343,6 @@ app.put("/cart", jwtAuth, async (req, res) => {
       cart = await db
         .prepare(`SELECT * FROM carrito WHERE user_id = ?`)
         .get(idUsuario);
-    } else {
-      const cartID = uuidv4();
-      db.prepare(
-        `INSERT INTO carrito (id, user_id, productos) VALUES (?, ?, ?)`
-      ).run(cartID, idUsuario, ids);
-      cart = await db.prepare(`SELECT * FROM carrito WHERE id = ?`).get(cartID);
     }
     return res.status(200).json({ status: "ok", message: "ok", cart });
   } catch (err) {
