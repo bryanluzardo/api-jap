@@ -21,7 +21,7 @@ export function generarToken(user) {
   const payload = {
     id: user.id,
   };
-  return jwt.sign(payload, secret, { expiresIn: "5m" });
+  return jwt.sign(payload, secret, { expiresIn: "3d" });
 } 
 
 export function validarToken(){
@@ -41,4 +41,5 @@ export function jwtAuth(req, res, next) {
     } catch (error) {
         res.status(401).json({ message: "token inválido"});
     }
+
 }
